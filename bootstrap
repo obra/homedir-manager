@@ -1,0 +1,23 @@
+#!/bin/sh
+# bootstrap — first-run setup: put homedir-manager on PATH, build the macOS helper, optional install.
+set -eu
+# shellcheck disable=SC1007
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+
+# 1. PATH: symlink the dispatcher into the first writable ~/.local/bin or /usr/local/bin.
+for d in "$HOME/.local/bin" /usr/local/bin; do
+  if mkdir -p "$d" 2>/dev/null && [ -w "$d" ]; then
+    ln -sf "$ROOT/bin/homedir-manager" "$d/homedir-manager"
+    ln -sf "$ROOT/bin/homedir-manager" "$d/hm"
+    printf 'linked homedir-manager + hm into %s\n' "$d"
+    break
+  fi
+done
+
+# 2. macOS: build the Swift helper if the toolchain is present.
+if [ "$(uname -s)" = "Darwin" ] && [ -d "$ROOT/macos" ] && command -v swift >/dev/null 2>&1; then
+  printf 'building macos-defaults helper...\n'
+  ( cd "$ROOT/macos" && swift build -c release )
+fi
+
+printf 'bootstrap complete. Run: homedir-manager install\n'

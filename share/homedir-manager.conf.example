@@ -1,0 +1,5 @@
+# .homedir-manager.conf — marks this repo as a homedir-manager content repo.
+# Presence alone is enough. Optional settings:
+#   HM_SECRET_FILES — space-separated local files that must be chmod 600 (audited).
+# Example:
+#   HM_SECRET_FILES="$HOME/.config/op/env"
