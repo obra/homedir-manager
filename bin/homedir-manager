@@ -2,8 +2,17 @@
 # homedir-manager — deploy + audit + macOS-defaults for marker-tagged content repos.
 set -eu
 
+# Resolve $0 through any symlinks so HM_LIB is correct when the binary is symlinked onto PATH.
+HM_SELF=$0
+while [ -L "$HM_SELF" ]; do
+  HM_LINK=$(readlink "$HM_SELF")
+  case $HM_LINK in
+    /*) HM_SELF=$HM_LINK ;;
+    *)  HM_SELF=$(dirname -- "$HM_SELF")/$HM_LINK ;;
+  esac
+done
 # shellcheck disable=SC1007
-HM_LIB=$(CDPATH= cd -- "$(dirname -- "$0")/../lib" && pwd -P)
+HM_LIB=$(CDPATH= cd -- "$(dirname -- "$HM_SELF")/../lib" && pwd -P)
 . "$HM_LIB/common.sh"
 
 usage() {

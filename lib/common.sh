@@ -13,4 +13,4 @@ os_name() {
 }
 
 # hm_die — print to stderr and exit non-zero.
-hm_die() { printf 'homedir-manager: %s\n' "$1" >&2; exit "${2:-1}"; }
+hm_die() { printf 'homedir-manager: %s\n' "${1:-}" >&2; exit "${2:-1}"; }
