@@ -50,6 +50,6 @@ case "$cmd" in
     [ "$_any" = 0 ] && printf 'homedir-manager: no managed repos found under %s\n' "$(hm_base)" >&2
     ;;
   audit) audit_all || exit 1 ;;
-  defaults) hm_die "defaults not yet implemented" ;;
+  defaults) defaults_cmd "$@" ;;
   *) usage; exit 2 ;;
 esac
