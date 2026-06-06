@@ -14,6 +14,10 @@ done
 # shellcheck disable=SC1007
 HM_LIB=$(CDPATH= cd -- "$(dirname -- "$HM_SELF")/../lib" && pwd -P)
 . "$HM_LIB/common.sh"
+. "$HM_LIB/config.sh"
+. "$HM_LIB/deploy.sh"
+. "$HM_LIB/audit.sh"
+. "$HM_LIB/defaults.sh"
 
 usage() {
   cat <<'EOF'
@@ -35,7 +39,16 @@ cmd=${1:-help}
 case "$cmd" in
   help|--help|-h) usage ;;
   version|--version) printf '%s\n' "$HM_VERSION" ;;
-  install) hm_die "install not yet implemented" ;;
+  install)
+    _dry=''
+    [ "${1:-}" = "--dry-run" ] && _dry='--dry-run'
+    discover_repos | while IFS= read -r repo; do
+      printf '== %s ==\n' "$repo"
+      deploy_repo "$repo" $_dry
+    done
+    _any=$(discover_repos | wc -l | tr -d ' ')
+    [ "$_any" = 0 ] && printf 'homedir-manager: no managed repos found under %s\n' "$(hm_base)" >&2
+    ;;
   audit)   hm_die "audit not yet implemented" ;;
   defaults) hm_die "defaults not yet implemented" ;;
   *) usage; exit 2 ;;
