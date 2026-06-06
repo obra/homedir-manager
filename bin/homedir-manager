@@ -40,11 +40,13 @@ case "$cmd" in
   help|--help|-h) usage ;;
   version|--version) printf '%s\n' "$HM_VERSION" ;;
   install)
-    _dry=''
-    [ "${1:-}" = "--dry-run" ] && _dry='--dry-run'
+    # _dryflag (not _dry): deploy_repo uses _dry internally and would clobber it across repos,
+    # causing every repo after the first to deploy for real during a --dry-run.
+    _dryflag=''
+    [ "${1:-}" = "--dry-run" ] && _dryflag='--dry-run'
     discover_repos | while IFS= read -r repo; do
       printf '== %s ==\n' "$repo"
-      deploy_repo "$repo" $_dry
+      deploy_repo "$repo" $_dryflag
     done
     if [ "$(discover_repos | wc -l | tr -d ' ')" = 0 ]; then
       printf 'homedir-manager: no managed repos found under %s\n' "$(hm_base)" >&2
