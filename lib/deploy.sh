@@ -14,30 +14,30 @@ deploy_repo() {
   _linked=0; _skipped=0; _backed=0; _missing=0
 
   set -f
-  while IFS= read -r line || [ -n "$line" ]; do
-    line=${line%%#*}
+  while IFS= read -r _line || [ -n "$_line" ]; do
+    _line=${_line%%#*}
     # shellcheck disable=SC2086
-    set -- $line
+    set -- $_line
     [ "$#" -eq 0 ] && continue
-    rel=$1; tag=${2:-}
-    if [ -n "$tag" ] && [ "$tag" != "$_os" ]; then continue; fi
+    _rel=$1; _tag=${2:-}
+    if [ -n "$_tag" ] && [ "$_tag" != "$_os" ]; then continue; fi
 
-    src="$_repo/$rel"; dest="$HOME/$rel"
-    if [ ! -e "$src" ] && [ ! -L "$src" ]; then
-      printf 'MISSING  %s (not in %s)\n' "$rel" "$_repo"; _missing=$((_missing+1)); continue
+    _src="$_repo/$_rel"; _dest="$HOME/$_rel"
+    if [ ! -e "$_src" ] && [ ! -L "$_src" ]; then
+      printf 'MISSING  %s (not in %s)\n' "$_rel" "$_repo"; _missing=$((_missing+1)); continue
     fi
-    if [ -L "$dest" ] && [ "$dest" -ef "$src" ]; then _skipped=$((_skipped+1)); continue; fi
+    if [ -L "$_dest" ] && [ "$_dest" -ef "$_src" ]; then _skipped=$((_skipped+1)); continue; fi
     if [ "$_dry" = 1 ]; then
-      if [ -e "$dest" ] || [ -L "$dest" ]; then printf 'WOULD BACKUP+LINK  %s\n' "$rel"
-      else printf 'WOULD LINK  %s\n' "$rel"; fi
+      if [ -e "$_dest" ] || [ -L "$_dest" ]; then printf 'WOULD BACKUP+LINK  %s\n' "$_rel"
+      else printf 'WOULD LINK  %s\n' "$_rel"; fi
       continue
     fi
-    mkdir -p "$(dirname "$dest")"
-    if [ -e "$dest" ] || [ -L "$dest" ]; then
-      mkdir -p "$(dirname "$_backup/$rel")"; mv "$dest" "$_backup/$rel"
-      _backed=$((_backed+1)); printf 'BACKUP   %s -> %s\n' "$rel" "$_backup/$rel"
+    mkdir -p "$(dirname "$_dest")"
+    if [ -e "$_dest" ] || [ -L "$_dest" ]; then
+      mkdir -p "$(dirname "$_backup/$_rel")"; mv "$_dest" "$_backup/$_rel"
+      _backed=$((_backed+1)); printf 'BACKUP   %s -> %s\n' "$_rel" "$_backup/$_rel"
     fi
-    ln -s "$src" "$dest"; _linked=$((_linked+1)); printf 'LINK     %s\n' "$rel"
+    ln -s "$_src" "$_dest"; _linked=$((_linked+1)); printf 'LINK     %s\n' "$_rel"
   done < "$_manifest"
   set +f
 
