@@ -25,7 +25,7 @@ usage: homedir-manager <command> [options]
 
 commands:
   install [--dry-run]              symlink every managed repo's manifest into $HOME
-  audit [-q]                       scan managed repos for leaks, drift, bad perms
+  audit                            scan managed repos for leaks, drift, bad perms
   defaults <apply|drift|capture> … macOS preferences (macOS only)
   help | --help                    this message
   version | --version              print version

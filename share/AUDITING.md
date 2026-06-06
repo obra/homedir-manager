@@ -9,8 +9,7 @@ a config that drifted out of deployment, a machine that fell behind.
 `homedir-manager audit` automates the checks that don't need judgement:
 
 ```sh
-homedir-manager audit        # full report
-homedir-manager audit -q     # findings + summary only
+homedir-manager audit
 ```
 
 It checks, across **all** managed repos:
