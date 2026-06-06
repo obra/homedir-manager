@@ -1,0 +1,56 @@
+#!/bin/sh
+# homedir-manager — deploy + audit + macOS-defaults for marker-tagged content repos.
+set -eu
+
+# Resolve $0 through any symlinks so HM_LIB is correct when the binary is symlinked onto PATH.
+HM_SELF=$0
+while [ -L "$HM_SELF" ]; do
+  HM_LINK=$(readlink "$HM_SELF")
+  case $HM_LINK in
+    /*) HM_SELF=$HM_LINK ;;
+    *)  HM_SELF=$(dirname -- "$HM_SELF")/$HM_LINK ;;
+  esac
+done
+# shellcheck disable=SC1007
+HM_LIB=$(CDPATH= cd -- "$(dirname -- "$HM_SELF")/../lib" && pwd -P)
+. "$HM_LIB/common.sh"
+. "$HM_LIB/config.sh"
+. "$HM_LIB/deploy.sh"
+. "$HM_LIB/audit.sh"
+. "$HM_LIB/defaults.sh"
+
+usage() {
+  cat <<'EOF'
+usage: homedir-manager <command> [options]
+
+commands:
+  install [--dry-run]              symlink every managed repo's manifest into $HOME
+  audit                            scan managed repos for leaks, drift, bad perms
+  defaults <apply|drift|capture> … macOS preferences (macOS only)
+  help | --help                    this message
+  version | --version              print version
+EOF
+}
+
+HM_VERSION='0.1.0'
+
+cmd=${1:-help}
+[ "$#" -gt 0 ] && shift || true
+case "$cmd" in
+  help|--help|-h) usage ;;
+  version|--version) printf '%s\n' "$HM_VERSION" ;;
+  install)
+    _dry=''
+    [ "${1:-}" = "--dry-run" ] && _dry='--dry-run'
+    discover_repos | while IFS= read -r repo; do
+      printf '== %s ==\n' "$repo"
+      deploy_repo "$repo" $_dry
+    done
+    if [ "$(discover_repos | wc -l | tr -d ' ')" = 0 ]; then
+      printf 'homedir-manager: no managed repos found under %s\n' "$(hm_base)" >&2
+    fi
+    ;;
+  audit) audit_all || exit 1 ;;
+  defaults) defaults_cmd "$@" ;;
+  *) usage; exit 2 ;;
+esac
