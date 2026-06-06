@@ -7,10 +7,10 @@ hm_base() { printf '%s\n' "${HOMEDIR_MANAGER_BASE:-$HOME/git}"; }
 # discover_repos [base] — print the physical path of each immediate subdirectory
 # of base that contains the marker file, one per line, in sorted glob order.
 discover_repos() {
-  base=${1:-$(hm_base)}
-  [ -d "$base" ] || return 0
-  for d in "$base"/*/; do
-    [ -f "$d$HM_MARKER" ] || continue
-    (CDPATH= cd -- "$d" && pwd -P)
+  _base=${1:-$(hm_base)}
+  [ -d "$_base" ] || return 0
+  for _d in "$_base"/*/; do
+    [ -f "$_d$HM_MARKER" ] || continue
+    (CDPATH= cd -- "$_d" && pwd -P)
   done
 }
