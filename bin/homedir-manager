@@ -1,0 +1,33 @@
+#!/bin/sh
+# homedir-manager — deploy + audit + macOS-defaults for marker-tagged content repos.
+set -eu
+
+# shellcheck disable=SC1007
+HM_LIB=$(CDPATH= cd -- "$(dirname -- "$0")/../lib" && pwd -P)
+. "$HM_LIB/common.sh"
+
+usage() {
+  cat <<'EOF'
+usage: homedir-manager <command> [options]
+
+commands:
+  install [--dry-run]              symlink every managed repo's manifest into $HOME
+  audit [-q]                       scan managed repos for leaks, drift, bad perms
+  defaults <apply|drift|capture> … macOS preferences (macOS only)
+  help | --help                    this message
+  version | --version              print version
+EOF
+}
+
+HM_VERSION='0.1.0'
+
+cmd=${1:-help}
+[ "$#" -gt 0 ] && shift || true
+case "$cmd" in
+  help|--help|-h) usage ;;
+  version|--version) printf '%s\n' "$HM_VERSION" ;;
+  install) hm_die "install not yet implemented" ;;
+  audit)   hm_die "audit not yet implemented" ;;
+  defaults) hm_die "defaults not yet implemented" ;;
+  *) usage; exit 2 ;;
+esac
