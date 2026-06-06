@@ -36,4 +36,17 @@ out=$(audit_perms "$TMP/repo" 2>&1); rc=$?
 assert_eq "0" "$rc" "audit_perms returns 0 when 600"
 rm -rf "$TMP"
 
+# drift: deployed entry passes (rc 0); missing deployment is flagged (rc 1)
+TMP=$(mktempd); mkdir -p "$TMP/repo" "$TMP/home"; echo y > "$TMP/repo/d.conf"
+printf 'd.conf\n' > "$TMP/repo/manifest"
+ln -s "$TMP/repo/d.conf" "$TMP/home/d.conf"
+rc=0; UNAME_OVERRIDE=Darwin HOME="$TMP/home" audit_drift "$TMP/repo" >/dev/null 2>&1 || rc=$?
+assert_eq "0" "$rc" "audit_drift returns 0 when deployed"
+rm "$TMP/home/d.conf"
+out=$(UNAME_OVERRIDE=Darwin HOME="$TMP/home" audit_drift "$TMP/repo" 2>&1); rc=$?
+echo "$out" | grep -q 'not deployed' && hit=yes || hit=no
+assert_eq "yes" "$hit" "audit_drift flags undeployed entry"
+assert_eq "1" "$rc" "audit_drift returns 1 on drift"
+rm -rf "$TMP"
+
 printf 'RESULT run=%s failed=%s\n' "$TESTS_RUN" "$TESTS_FAILED"
