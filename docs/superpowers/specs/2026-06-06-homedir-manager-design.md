@@ -57,7 +57,7 @@ homedir-manager/
   bin/homedir-manager     # single entry: subcommand dispatcher (sh). 'hm' alias symlink.
   lib/                    # deploy.sh, audit.sh, config.sh (discovery/resolution)
   macos/                  # vendored macos-defaults Swift package (see its own spec)
-  share/                  # generic AUDITING.md, SECRETS.md, the .homedir-manager.toml template
+  share/                  # generic AUDITING.md, SECRETS.md, the .homedir-manager.conf template
   skills/                 # managing-homedir skill (product docs)
   test/                   # the existing sh harness + new discovery/multi-repo/audit cases
   bootstrap               # first-run: PATH wire-up, build Swift helper (macOS), optional install
@@ -78,7 +78,7 @@ One entry point, `homedir-manager <verb>` (with an `hm` alias):
 - **`audit [-q]`** — leak scan + deploy-drift + perms, across discovered content repos. Today's
   `dotfiles-audit`, generalized: the secret-pattern scan and deploy-drift run per discovered repo;
   the hardcoded `~/.config/op/env` perms check becomes **opt-in per-repo config** declared in the
-  repo's `.homedir-manager.toml` marker (e.g. a `secret_files` list), so the engine carries no
+  repo's `.homedir-manager.conf` marker (e.g. a `secret_files` list), so the engine carries no
   user-specific path.
 - **`defaults <apply|drift|capture> …`** — on macOS, delegates to the vendored `macos-defaults`
   binary per its fixed CLI contract, pointing it at the data files in the user's content repo. On
@@ -87,7 +87,7 @@ One entry point, `homedir-manager <verb>` (with an `hm` alias):
 
 ## 5. Discovery (convention-with-override)
 
-- A content repo **opts in** with a marker file at its root: **`.homedir-manager.toml`**. It may
+- A content repo **opts in** with a marker file at its root: **`.homedir-manager.conf`**. It may
   be empty in v1; it exists to carry per-repo settings later (e.g. `secret_files` for the audit
   perms check, public/private hints). The `manifest` remains the *deploy list*. This separates
   "is this a content repo?" (marker) from "what does it deploy?" (manifest), and avoids false
@@ -130,7 +130,7 @@ Steps (done on a branch/worktree; parity validated before any deletion):
 1. Scaffold `homedir-manager`; move the machinery in; generalize `install`/`audit` for
    marker-based multi-repo discovery and strip user-specific assumptions (the `op/env` perms
    check → marker config).
-2. Add `.homedir-manager.toml` to `dotfiles` + `dotfiles-private`; `git rm` the moved machinery
+2. Add `.homedir-manager.conf` to `dotfiles` + `dotfiles-private`; `git rm` the moved machinery
    from `dotfiles`; drop the now-engine-owned `manifest` lines (`bin/dotfiles-audit`, the
    `managing-dotfiles` skill).
 3. `bootstrap` on the **primary machine**: engine on PATH, deploys its own skill, then
