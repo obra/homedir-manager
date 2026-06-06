@@ -49,7 +49,7 @@ case "$cmd" in
     _any=$(discover_repos | wc -l | tr -d ' ')
     [ "$_any" = 0 ] && printf 'homedir-manager: no managed repos found under %s\n' "$(hm_base)" >&2
     ;;
-  audit)   hm_die "audit not yet implemented" ;;
+  audit) audit_all || exit 1 ;;
   defaults) hm_die "defaults not yet implemented" ;;
   *) usage; exit 2 ;;
 esac
