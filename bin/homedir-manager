@@ -23,6 +23,8 @@ HM_LIB=$(CDPATH= cd -- "$(dirname -- "$HM_SELF")/../lib" && pwd -P)
 . "$HM_LIB/audit.sh"
 # shellcheck source=lib/defaults.sh
 . "$HM_LIB/defaults.sh"
+# shellcheck source=lib/hooks.sh
+. "$HM_LIB/hooks.sh"
 
 usage() {
   cat <<'EOF'
@@ -30,7 +32,8 @@ usage: homedir-manager <command> [options]
 
 commands:
   install [--dry-run]              symlink every managed repo's manifest into $HOME
-  audit                            scan managed repos for leaks, drift, bad perms
+  audit [--secrets]                scan managed repos for leaks, drift, bad perms
+  install-hooks                    install the pre-push secret-audit hook into managed repos
   defaults <apply|drift|capture> … macOS preferences (macOS only)
   help | --help                    this message
   version | --version              print version
@@ -58,9 +61,11 @@ case "$cmd" in
     fi
     ;;
   audit)
-    # shellcheck disable=SC2119  # audit_all takes an optional base dir, not the script's args
-    audit_all || exit 1
+    _checks='secrets drift perms'
+    [ "${1:-}" = "--secrets" ] && _checks='secrets'
+    audit_all '' "$_checks" || exit 1
     ;;
+  install-hooks) install_hooks ;;
   defaults) defaults_cmd "$@" ;;
   *) usage; exit 2 ;;
 esac

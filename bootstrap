@@ -36,4 +36,8 @@ if [ -d "$ROOT/skills" ]; then
   printf 'linked bundled skills into ~/.claude/skills\n'
 fi
 
+# 4. Install the pre-push secret-audit hook into any managed content repos already present
+# (idempotent, clobber-safe; no-ops cleanly if none are found yet).
+"$ROOT/bin/homedir-manager" install-hooks || true
+
 printf 'bootstrap complete. Run: homedir-manager install\n'

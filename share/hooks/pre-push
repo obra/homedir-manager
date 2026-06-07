@@ -1,0 +1,15 @@
+#!/bin/sh
+# pre-push — block the push if homedir-manager finds a leaked secret in a managed repo.
+# Installed by `homedir-manager install-hooks`. Override a false positive with: git push --no-verify
+if command -v homedir-manager >/dev/null 2>&1; then
+  HM=homedir-manager
+elif [ -x "$HOME/git/homedir-manager/bin/homedir-manager" ]; then
+  HM="$HOME/git/homedir-manager/bin/homedir-manager"
+else
+  echo "pre-push: homedir-manager not found; skipping secret audit" >&2
+  exit 0
+fi
+if ! "$HM" audit --secrets; then
+  echo "pre-push: secret audit failed — push blocked. Rotate + remove the secret, or override with: git push --no-verify" >&2
+  exit 1
+fi

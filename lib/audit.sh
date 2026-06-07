@@ -50,13 +50,17 @@ audit_perms() {
   return $_rc
 }
 
-# audit_all [base] — run all checks across discovered repos. Returns 1 if any finding.
+# audit_all [base] [checks] — run the named checks across discovered repos. `checks` is a
+# space-separated subset of "secrets drift perms" (default: all three). Returns 1 if any finding.
 audit_all() {
-  _base=${1:-$(hm_base)}; _findings=0
+  _base=${1:-$(hm_base)}
+  _checks=${2:-secrets drift perms}
+  _findings=0
   for _repo in $(discover_repos "$_base"); do
-    audit_secrets "$_repo" || _findings=$((_findings+1))
-    audit_drift   "$_repo" || _findings=$((_findings+1))
-    audit_perms   "$_repo" || _findings=$((_findings+1))
+    # shellcheck disable=SC2086  # _checks is an intentional space-separated list
+    for _chk in $_checks; do
+      "audit_$_chk" "$_repo" || _findings=$((_findings+1))
+    done
   done
   [ "$_findings" -eq 0 ] && printf 'PASS — no findings\n' || printf 'FAIL — %s finding(s)\n' "$_findings"
   [ "$_findings" -eq 0 ]
