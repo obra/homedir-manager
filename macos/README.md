@@ -1,5 +1,9 @@
 # macos-defaults
 
+> ⚠️ **Written by an AI agent — not human-reviewed.**
+> Claude wrote this tool end to end: code, tests, and docs. No human has reviewed it line by line.
+> The `apply` verb writes to your live macOS preferences. **Read the code before you run it.**
+
 A macOS-only CLI that captures, diffs, and applies a curated set of scalar macOS
 `defaults` (CFPreferences) settings. Drive your Mac through the GUI, then reconcile the
 settings you care about into a version-controlled desired-state file and apply it

@@ -1,5 +1,10 @@
 # homedir-manager
 
+> ⚠️ **Written by an AI agent — not human-reviewed.**
+> Claude wrote this repo end to end: code, tests, and docs. No human has reviewed it line by line.
+> It changes your machine — it symlinks files into `$HOME`, backs up and replaces what it finds, and
+> on macOS edits system preferences. **Read the code before you run it.**
+
 A portable POSIX `sh` engine that symlink-deploys and audits your dotfiles content repos, with an
 optional macOS `defaults` helper. It discovers any repo under `~/git` that contains a
 `.homedir-manager.conf` marker file, reads its `manifest`, and symlinks each entry into `$HOME`.
@@ -14,7 +19,7 @@ repos.
 ## Quickstart
 
 ```sh
-git clone https://github.com/yourname/homedir-manager ~/git/homedir-manager
+git clone https://github.com/obra/homedir-manager ~/git/homedir-manager
 cd ~/git/homedir-manager
 ./bootstrap
 ```
