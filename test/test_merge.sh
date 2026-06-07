@@ -62,4 +62,33 @@ if [ ! -e "$TMP/home/.codex/skills/alpha" ] && [ ! -L "$TMP/home/.codex/skills/a
 assert_eq "absent" "$dz" "dry-run creates no merge children"
 rm -rf "$TMP"
 
+# --- Audit: a deployed merge dir is clean; an undeployed child is drift ---
+TMP=$(mktempd); mkdir -p "$TMP/repo/.codex/skills/alpha" "$TMP/home"
+: > "$TMP/repo/$HM_MARKER"
+echo a > "$TMP/repo/.codex/skills/alpha/SKILL.md"
+printf 'merge-children .codex/skills\n' > "$TMP/repo/manifest"
+UNAME_OVERRIDE=Darwin HOME="$TMP/home" deploy_repo "$TMP/repo" >/dev/null
+UNAME_OVERRIDE=Darwin HOME="$TMP/home" audit_drift "$TMP/repo" >/dev/null 2>&1 && d1=clean || d1=drift
+assert_eq "clean" "$d1" "merge dir fully deployed => no drift"
+
+rm "$TMP/home/.codex/skills/alpha"   # undeploy one child
+out=$(UNAME_OVERRIDE=Darwin HOME="$TMP/home" audit_drift "$TMP/repo" 2>&1) && d2=clean || d2=drift
+assert_eq "drift" "$d2" "undeployed merge child => drift"
+echo "$out" | grep -q 'not deployed' && nd=yes || nd=no
+assert_eq "yes" "$nd" "drift names the undeployed child"
+rm -rf "$TMP"
+
+# --- Audit: a child removed from the repo leaves a dangling orphan symlink that audit surfaces ---
+TMP=$(mktempd); mkdir -p "$TMP/repo/.codex/skills/alpha" "$TMP/home"
+: > "$TMP/repo/$HM_MARKER"
+echo a > "$TMP/repo/.codex/skills/alpha/SKILL.md"
+printf 'merge-children .codex/skills\n' > "$TMP/repo/manifest"
+UNAME_OVERRIDE=Darwin HOME="$TMP/home" deploy_repo "$TMP/repo" >/dev/null
+rm -rf "$TMP/repo/.codex/skills/alpha"   # remove from repo; ~ symlink now dangles
+out=$(UNAME_OVERRIDE=Darwin HOME="$TMP/home" audit_drift "$TMP/repo" 2>&1) && o1=clean || o1=drift
+assert_eq "drift" "$o1" "orphaned merge child => drift"
+echo "$out" | grep -q 'orphan' && og=yes || og=no
+assert_eq "yes" "$og" "orphan finding is reported"
+rm -rf "$TMP"
+
 printf 'RESULT run=%s failed=%s\n' "$TESTS_RUN" "$TESTS_FAILED"
