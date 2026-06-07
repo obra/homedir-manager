@@ -20,4 +20,20 @@ if [ "$(uname -s)" = "Darwin" ] && [ -d "$ROOT/macos" ] && command -v swift >/de
   ( cd "$ROOT/macos" && swift build -c release )
 fi
 
+# 3. Deploy bundled skills into ~/.claude/skills so they're available to Claude. Each is
+# symlinked; a pre-existing real (non-symlink) entry is left alone rather than clobbered.
+if [ -d "$ROOT/skills" ]; then
+  mkdir -p "$HOME/.claude/skills"
+  for s in "$ROOT/skills"/*/; do
+    [ -d "$s" ] || continue
+    _dest="$HOME/.claude/skills/$(basename "$s")"
+    if [ -e "$_dest" ] && [ ! -L "$_dest" ]; then
+      printf 'skipping skill %s: exists and is not a symlink\n' "$_dest" >&2
+      continue
+    fi
+    ln -sfn "${s%/}" "$_dest"
+  done
+  printf 'linked bundled skills into ~/.claude/skills\n'
+fi
+
 printf 'bootstrap complete. Run: homedir-manager install\n'
