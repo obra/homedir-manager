@@ -13,10 +13,15 @@ while [ -L "$HM_SELF" ]; do
 done
 # shellcheck disable=SC1007
 HM_LIB=$(CDPATH= cd -- "$(dirname -- "$HM_SELF")/../lib" && pwd -P)
+# shellcheck source=lib/common.sh
 . "$HM_LIB/common.sh"
+# shellcheck source=lib/config.sh
 . "$HM_LIB/config.sh"
+# shellcheck source=lib/deploy.sh
 . "$HM_LIB/deploy.sh"
+# shellcheck source=lib/audit.sh
 . "$HM_LIB/audit.sh"
+# shellcheck source=lib/defaults.sh
 . "$HM_LIB/defaults.sh"
 
 usage() {

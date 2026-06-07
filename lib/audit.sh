@@ -39,6 +39,7 @@ audit_drift() {
 # The marker is sourced inside a `set +e` subshell so a malformed marker cannot abort the audit.
 audit_perms() {
   _repo=$1; _rc=0
+  # shellcheck disable=SC1090  # the marker is a user-supplied runtime path, not statically known
   _secret_files=$( set +e; [ -f "$_repo/$HM_MARKER" ] && . "$_repo/$HM_MARKER"; printf '%s' "${HM_SECRET_FILES:-}" )
   for _f in $_secret_files; do
     [ -e "$_f" ] || continue

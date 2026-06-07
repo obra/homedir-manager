@@ -11,6 +11,7 @@ discover_repos() {
   [ -d "$_base" ] || return 0
   for _d in "$_base"/*/; do
     [ -f "$_d$HM_MARKER" ] || continue
+    # shellcheck disable=SC1007
     (CDPATH= cd -- "$_d" && pwd -P)
   done
 }

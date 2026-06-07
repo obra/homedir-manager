@@ -1,4 +1,5 @@
 # common.sh — shared helpers for the homedir-manager engine. Sourced, never executed.
+# shellcheck disable=SC2034  # HM_MARKER/HM_REL/HM_TAG are consumed by the scripts that source this.
 
 # Marker filename that opts a directory in as a managed content repo.
 HM_MARKER='.homedir-manager.conf'

@@ -7,6 +7,7 @@ defaults_cmd() {
   _bin=${HM_DEFAULTS_BIN:-}
   if [ -z "$_bin" ]; then
     # default location: macos/.build/release/macos-defaults relative to lib/
+    # shellcheck disable=SC1007
     _bin=$(CDPATH= cd -- "$HM_LIB/../macos" 2>/dev/null && pwd -P)/.build/release/macos-defaults
   fi
   [ -x "$_bin" ] || { printf 'homedir-manager: macos-defaults not built (run bootstrap); expected %s\n' "$_bin" >&2; return 3; }

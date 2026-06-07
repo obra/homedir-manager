@@ -1,5 +1,7 @@
 # homedir-manager
 
+[![CI](https://github.com/obra/homedir-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/obra/homedir-manager/actions/workflows/ci.yml)
+
 > ⚠️ **Written by an AI agent — not human-reviewed.**
 > Claude wrote this repo end to end: code, tests, and docs. No human has reviewed it line by line.
 > It changes your machine — it symlinks files into `$HOME`, backs up and replaces what it finds, and
