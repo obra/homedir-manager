@@ -91,4 +91,15 @@ echo "$out" | grep -q 'orphan' && og=yes || og=no
 assert_eq "yes" "$og" "orphan finding is reported"
 rm -rf "$TMP"
 
+# --- Audit: a healthy unmanaged sibling symlink does not trigger drift ---
+TMP=$(mktempd); mkdir -p "$TMP/repo/.codex/skills/alpha" "$TMP/home" "$TMP/ext"
+: > "$TMP/repo/$HM_MARKER"
+echo a > "$TMP/repo/.codex/skills/alpha/SKILL.md"
+printf 'merge-children .codex/skills\n' > "$TMP/repo/manifest"
+UNAME_OVERRIDE=Darwin HOME="$TMP/home" deploy_repo "$TMP/repo" >/dev/null
+ln -s "$TMP/ext" "$TMP/home/.codex/skills/external"   # healthy unmanaged sibling
+UNAME_OVERRIDE=Darwin HOME="$TMP/home" audit_drift "$TMP/repo" >/dev/null 2>&1 && s1=clean || s1=drift
+assert_eq "clean" "$s1" "healthy unmanaged sibling does not trigger drift"
+rm -rf "$TMP"
+
 printf 'RESULT run=%s failed=%s\n' "$TESTS_RUN" "$TESTS_FAILED"

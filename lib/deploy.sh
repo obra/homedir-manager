@@ -1,8 +1,8 @@
 # deploy.sh — symlink a content repo's manifest entries into $HOME. Sourced, never executed.
 # Depends on common.sh (os_name, parse_manifest_line).
 
-# _deploy_path <rel> — symlink $HOME/<rel> -> $_repo/<rel>, clobber-safe. Reads $_repo/$_dry/
-# $_backup and bumps deploy_repo's accumulators ($_linked/$_skipped/$_backed/$_missing).
+# _deploy_path <rel> — symlink $HOME/<rel> -> $_repo/<rel>, clobber-safe. Reads deploy_repo's
+# $_repo, $_dry, $_backup and bumps its accumulators ($_linked/$_skipped/$_backed/$_missing).
 _deploy_path() {
   _r=$1; _s="$_repo/$_r"; _d="$HOME/$_r"
   if [ ! -e "$_s" ] && [ ! -L "$_s" ]; then
