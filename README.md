@@ -80,6 +80,17 @@ Each line: `<repo-relative-path> [macos|linux]`
 
 Lines with an OS tag are only deployed/audited on that OS. Blank lines and `#` comments are ignored.
 
+To track a directory by symlinking **each of its children** individually — so new children
+appear automatically and unmanaged siblings (host-local files, externally-managed symlinks)
+are left alone — prefix the entry with `merge-children`:
+
+    merge-children  .codex/skills
+    merge-children  .codex/skills  macos
+
+The mode is selected by the keyword, never by punctuation. A path ending in `/` is a hard
+error — this avoids the rsync `src/` vs `src` footgun. Without the keyword, a directory entry
+symlinks the directory itself.
+
 ## Further reading
 
 - `share/AUDITING.md` — the full audit process and by-eye quarterly checks.
