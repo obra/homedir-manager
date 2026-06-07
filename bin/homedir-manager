@@ -40,7 +40,7 @@ EOF
 HM_VERSION='0.1.0'
 
 cmd=${1:-help}
-[ "$#" -gt 0 ] && shift || true
+if [ "$#" -gt 0 ]; then shift; fi
 case "$cmd" in
   help|--help|-h) usage ;;
   version|--version) printf '%s\n' "$HM_VERSION" ;;
@@ -57,6 +57,7 @@ case "$cmd" in
       printf 'homedir-manager: no managed repos found under %s\n' "$(hm_base)" >&2
     fi
     ;;
+  # shellcheck disable=SC2119  # audit_all takes an optional base dir, not the script's args
   audit) audit_all || exit 1 ;;
   defaults) defaults_cmd "$@" ;;
   *) usage; exit 2 ;;

@@ -28,6 +28,7 @@ audit_drift() {
     [ -n "$_tag" ] && [ "$_tag" != "$_os" ] && continue
     _src="$_repo/$_rel"; _dest="$HOME/$_rel"
     [ -e "$_src" ] || { printf '[%s] manifest entry missing from repo: %s\n' "$_name" "$_rel"; _rc=1; continue; }
+    # shellcheck disable=SC3013  # -ef is a universal extension (bash 3.2, dash, busybox, ksh)
     if [ -L "$_dest" ] && [ "$_dest" -ef "$_src" ]; then :; else
       printf '[%s] not deployed (run install): %s\n' "$_name" "$_rel"; _rc=1
     fi

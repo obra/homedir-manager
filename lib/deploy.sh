@@ -22,6 +22,7 @@ deploy_repo() {
     if [ ! -e "$_src" ] && [ ! -L "$_src" ]; then
       printf 'MISSING  %s (not in %s)\n' "$_rel" "$_repo"; _missing=$((_missing+1)); continue
     fi
+    # shellcheck disable=SC3013  # -ef is a universal extension (bash 3.2, dash, busybox, ksh)
     if [ -L "$_dest" ] && [ "$_dest" -ef "$_src" ]; then _skipped=$((_skipped+1)); continue; fi
     if [ "$_dry" = 1 ]; then
       if [ -e "$_dest" ] || [ -L "$_dest" ]; then printf 'WOULD BACKUP+LINK  %s\n' "$_rel"
