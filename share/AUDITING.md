@@ -31,8 +31,19 @@ Exit status is `0` clean / `1` with findings, so it drops into a pre-push hook o
 
 The script can't decide these — walk them manually:
 
-- **Coverage.** Skim `~/.config` and `$HOME` for new tool configs worth tracking, and tracked
-  files no longer worth keeping. The manifest is the source of truth for what's managed.
+- **Coverage.** The universe to sweep is wider than `~/.config`: top-level `~/.*` (files **and**
+  dirs), `~/.config/*`, **and** `~/Library/Application Support/*` (macOS app config — already
+  tracked for some editors). For each location, reach a recorded decision: track it (public or
+  private), deliver its secret via fnox, or skip it with a reason (tool-managed state, caches,
+  or a credential file). A recorded decision per location is what makes "did we cover everything?"
+  answerable instead of a guess — and the answer is only honest at the granularity you inspected
+  (a directory marked "skip" can still grow a new config file later).
+- **Content review before a *public* repo (a secret scan is NOT sufficient).** Before any file is
+  tracked into a public content repo, **read it in full.** The `audit` secret-scan above catches
+  credential *shapes*; it does **not** catch private/work project names, client or org identifiers,
+  internal hostnames, absolute `/Users/...` paths, or journal references. None of those are secrets
+  by regex, yet none belongs in a public repo. Classifying a file as public by grep alone is how
+  private history leaks — judge by reading, not by pattern-matching.
 - **Secret hygiene.** Confirm every secret a tool needs comes from a password manager, not a
   plaintext file. See [SECRETS.md](SECRETS.md). Any new plaintext credential found in `$HOME`
   should be moved into a manager and quarantined.
@@ -41,9 +52,12 @@ The script can't decide these — walk them manually:
   ```sh
   for h in <host> …; do ssh "$h" 'git -C ~/git/<repo> rev-parse --short HEAD'; done
   ```
-- **Skills/agents drift.** Standalone skills under `~/.claude/skills` are versioned (individual
-  manifest entries). If a host grew a new standalone skill, fold it into the repo; project-linked
-  skills (symlinks into a project repo) are intentionally left per-host.
+- **Skills/agents drift.** Agent skill dirs (`~/.claude/skills`, `~/.codex/skills`, …) hold a mix
+  of repo-managed and per-host skills. Two ways to track them: list each skill as its own manifest
+  entry, or use a single `merge-children` entry for the directory so new skills are picked up
+  automatically while unmanaged siblings (project-linked symlinks, host-local skills) are left
+  alone. If a host grew a new standalone skill worth keeping, fold it into the repo; project-linked
+  skills are intentionally per-host.
 
 ## When the audit finds a leak
 

@@ -4,6 +4,11 @@ Secrets never live in these repos — not even encrypted. They live in a passwor
 loaded **lazily, only when the tool that needs them runs**, via [fnox](https://fnox.jdx.dev). A bare
 shell — including a remote SSH login — never touches a manager.
 
+**fnox is the single mechanism.** There is no parallel secret helper to keep in sync. Every secret
+is a declared entry in `~/.config/fnox/config.toml` and reaches a tool through `fnox` at runtime —
+nothing is rendered into a tracked file or fetched at shell start. Keeping one path (rather than a
+second by-title lookup function) is deliberate: one inventory of every secret, one place to audit.
+
 ## Model
 
 | Layer | What |
@@ -12,7 +17,7 @@ shell — including a remote SSH login — never touches a manager.
 | **Unlock** | 1Password's biometric is the only gate. Bitwarden unlocks *silently* from it — its master password is stored in 1Password and pulled by `bw-unlock` |
 | **Mapping** | `~/.config/fnox/config.toml` maps `ENV_VAR → provider + item name` (no values) |
 | **Loading** | a tool wrapper sets `BW_SESSION` (via `bw-unlock`) then runs `fnox exec -- <cmd>` |
-| **Ad-hoc** | `secret <name>` for a quick one-off lookup |
+| **One-off** | a *declared* secret: `fnox get <NAME>`. A genuinely undeclared item: the manager CLI directly (`op item get`, `rbw get`) — declared-and-inventoried is the norm, ad-hoc-by-title is not a path we keep |
 
 ## Storage convention
 
