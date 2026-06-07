@@ -70,4 +70,18 @@ found=$(find "$TMP/home/.dotfiles-backup" -name c.conf -exec cat {} \; 2>/dev/nu
 assert_eq "pre-existing" "$found" "original content preserved in backup"
 rm -rf "$TMP"
 
+# spaced path (e.g. ~/Library/Application Support/...) deploys correctly, OS tag still honored
+TMP=$(mktempd); mkdir -p "$TMP/repo/Library/Application Support/App/User" "$TMP/home"
+echo cfg > "$TMP/repo/Library/Application Support/App/User/settings.json"
+printf 'Library/Application Support/App/User/settings.json   macos\n' > "$TMP/repo/manifest"
+UNAME_OVERRIDE=Darwin HOME="$TMP/home" deploy_repo "$TMP/repo" >/dev/null
+assert_symlink_to "$TMP/home/Library/Application Support/App/User/settings.json" \
+  "$TMP/repo/Library/Application Support/App/User/settings.json" "spaced path deployed"
+# and the macos-tagged spaced path is skipped on Linux
+rm -rf "$TMP/home"; mkdir -p "$TMP/home"
+UNAME_OVERRIDE=Linux HOME="$TMP/home" deploy_repo "$TMP/repo" >/dev/null
+if [ -e "$TMP/home/Library/Application Support/App/User/settings.json" ]; then sp=present; else sp=absent; fi
+assert_eq "absent" "$sp" "spaced macos-tagged path skipped on Linux"
+rm -rf "$TMP"
+
 printf 'RESULT run=%s failed=%s\n' "$TESTS_RUN" "$TESTS_FAILED"

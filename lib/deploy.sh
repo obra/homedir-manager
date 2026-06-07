@@ -13,13 +13,9 @@ deploy_repo() {
   _backup="$HOME/.dotfiles-backup/$_ts"
   _linked=0; _skipped=0; _backed=0; _missing=0
 
-  set -f
   while IFS= read -r _line || [ -n "$_line" ]; do
-    _line=${_line%%#*}
-    # shellcheck disable=SC2086
-    set -- $_line
-    [ "$#" -eq 0 ] && continue
-    _rel=$1; _tag=${2:-}
+    parse_manifest_line "$_line" || continue
+    _rel=$HM_REL; _tag=$HM_TAG
     if [ -n "$_tag" ] && [ "$_tag" != "$_os" ]; then continue; fi
 
     _src="$_repo/$_rel"; _dest="$HOME/$_rel"
@@ -39,7 +35,6 @@ deploy_repo() {
     fi
     ln -s "$_src" "$_dest"; _linked=$((_linked+1)); printf 'LINK     %s\n' "$_rel"
   done < "$_manifest"
-  set +f
 
   printf 'linked=%s skipped=%s backed_up=%s missing=%s\n' "$_linked" "$_skipped" "$_backed" "$_missing"
 }

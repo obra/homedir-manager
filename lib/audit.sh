@@ -22,11 +22,9 @@ audit_secrets() {
 audit_drift() {
   _repo=$1; _name=$(basename "$_repo"); _os=$(os_name); _rc=0
   [ -f "$_repo/manifest" ] || return 0
-  set -f
   while IFS= read -r _line || [ -n "$_line" ]; do
-    _line=${_line%%#*}; # shellcheck disable=SC2086
-    set -- $_line; [ "$#" -eq 0 ] && continue
-    _rel=$1; _tag=${2:-}
+    parse_manifest_line "$_line" || continue
+    _rel=$HM_REL; _tag=$HM_TAG
     [ -n "$_tag" ] && [ "$_tag" != "$_os" ] && continue
     _src="$_repo/$_rel"; _dest="$HOME/$_rel"
     [ -e "$_src" ] || { printf '[%s] manifest entry missing from repo: %s\n' "$_name" "$_rel"; _rc=1; continue; }
@@ -34,7 +32,6 @@ audit_drift() {
       printf '[%s] not deployed (run install): %s\n' "$_name" "$_rel"; _rc=1
     fi
   done < "$_repo/manifest"
-  set +f
   return $_rc
 }
 
