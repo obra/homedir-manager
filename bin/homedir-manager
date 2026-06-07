@@ -57,8 +57,10 @@ case "$cmd" in
       printf 'homedir-manager: no managed repos found under %s\n' "$(hm_base)" >&2
     fi
     ;;
-  # shellcheck disable=SC2119  # audit_all takes an optional base dir, not the script's args
-  audit) audit_all || exit 1 ;;
+  audit)
+    # shellcheck disable=SC2119  # audit_all takes an optional base dir, not the script's args
+    audit_all || exit 1
+    ;;
   defaults) defaults_cmd "$@" ;;
   *) usage; exit 2 ;;
 esac
