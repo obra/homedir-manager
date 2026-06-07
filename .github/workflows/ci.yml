@@ -9,6 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Install ShellCheck v0.11.0 (pinned so CI matches local)
+        run: |
+          curl -fsSL https://github.com/koalaman/shellcheck/releases/download/v0.11.0/shellcheck-v0.11.0.linux.x86_64.tar.xz | tar -xJ
+          sudo install shellcheck-v0.11.0/shellcheck /usr/local/bin/shellcheck
+          shellcheck --version
       - name: ShellCheck the engine (POSIX sh)
         run: shellcheck -x -s sh bin/homedir-manager lib/*.sh bootstrap
 

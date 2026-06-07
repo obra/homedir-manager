@@ -65,7 +65,7 @@ case "$cmd" in
     [ "${1:-}" = "--secrets" ] && _checks='secrets'
     audit_all '' "$_checks" || exit 1
     ;;
-  install-hooks) install_hooks ;;
+  install-hooks) install_hooks '' ;;
   defaults) defaults_cmd "$@" ;;
   *) usage; exit 2 ;;
 esac
