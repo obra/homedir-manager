@@ -102,4 +102,17 @@ UNAME_OVERRIDE=Darwin HOME="$TMP/home" audit_drift "$TMP/repo" >/dev/null 2>&1 &
 assert_eq "clean" "$s1" "healthy unmanaged sibling does not trigger drift"
 rm -rf "$TMP"
 
+# --- Deploy: migrating a prior whole-dir symlink to merge-children must NOT corrupt the repo ---
+TMP=$(mktempd); mkdir -p "$TMP/repo/.codex/skills/alpha" "$TMP/home/.codex"
+echo a > "$TMP/repo/.codex/skills/alpha/SKILL.md"
+ln -s "$TMP/repo/.codex/skills" "$TMP/home/.codex/skills"   # prior whole-dir deploy state
+printf 'merge-children .codex/skills\n' > "$TMP/repo/manifest"
+UNAME_OVERRIDE=Darwin HOME="$TMP/home" deploy_repo "$TMP/repo" >/dev/null
+if [ -d "$TMP/repo/.codex/skills/alpha" ] && [ ! -L "$TMP/repo/.codex/skills/alpha" ]; then rcst=intact; else rcst=corrupted; fi
+assert_eq "intact" "$rcst" "repo child not moved when migrating symlink->merge"
+if [ -d "$TMP/home/.codex/skills" ] && [ ! -L "$TMP/home/.codex/skills" ]; then trst=real; else trst=notreal; fi
+assert_eq "real" "$trst" "target dir replaced symlink with real dir"
+assert_symlink_to "$TMP/home/.codex/skills/alpha" "$TMP/repo/.codex/skills/alpha" "child linked after migration"
+rm -rf "$TMP"
+
 printf 'RESULT run=%s failed=%s\n' "$TESTS_RUN" "$TESTS_FAILED"

@@ -45,7 +45,20 @@ deploy_repo() {
       if [ ! -d "$_mdir" ]; then
         printf 'MISSING  %s (merge dir not in %s)\n' "$_rel" "$_repo"; _missing=$((_missing+1)); continue
       fi
-      [ "$_dry" = 1 ] || mkdir -p "$HOME/$_rel"
+      # If $HOME/<rel> is a symlink (e.g. a prior whole-dir deploy of this path), children would
+      # resolve THROUGH it back into the repo and we would move the repo's own files. Back it up
+      # and replace it with a real directory first.
+      if [ -L "$HOME/$_rel" ]; then
+        if [ "$_dry" = 1 ]; then
+          printf 'WOULD BACKUP+MKDIR  %s (replace symlink with real dir)\n' "$_rel"
+        else
+          mkdir -p "$(dirname "$_backup/$_rel")"; mv "$HOME/$_rel" "$_backup/$_rel"
+          _backed=$((_backed+1)); printf 'BACKUP   %s -> %s\n' "$_rel" "$_backup/$_rel"
+          mkdir -p "$HOME/$_rel"
+        fi
+      else
+        [ "$_dry" = 1 ] || mkdir -p "$HOME/$_rel"
+      fi
       for _child in "$_mdir"/*; do
         [ -e "$_child" ] || [ -L "$_child" ] || continue   # empty-glob guard
         _deploy_path "$_rel/$(basename "$_child")"
